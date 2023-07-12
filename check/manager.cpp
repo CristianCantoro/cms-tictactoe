@@ -1,45 +1,133 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <signal.h>
+#include <sstream>
 #include "tictactoe.h"
 
 using namespace std;
 
+FILE *fin, *fout, *fifo_in, *fifo_out;
+
+void ex(const char *msg, float res) {
+  if (msg) {
+    fprintf(stderr, "%s ", msg);
+  }
+  printf("%f\n", res);
+  exit(0);
+}
+
+Move player_move() {
+  Move move;
+  assert(fscanf(fifo_out, "%d %d", &(move.row), &(move.col)) == 2);
+
+  return move;
+}
+
+// random player
+Move computer_move(TicTacToe &game) {
+  vector<Move> moves = game.get_available_moves();
+
+  int r = rand() % moves.size();
+  Move move = moves[r];
+
+  return move;
+}
+
 int main(int argc, char **argv) {
   signal(SIGPIPE, SIG_IGN);
-
-  FILE *fin, *fout, *fifo_in, *fifo_out;
 
   fin = fopen("input.txt", "r");
   fout = fopen("output.txt", "w");
   fifo_in = fopen(argv[1], "w");
   fifo_out = fopen(argv[2], "r");
 
-  int player;
-  fscanf(fin, "%d", &player);
+  if (fifo_in == NULL) {
+    cerr << "Failed to open input queue." << endl;
+    return 1;
+  }
+
+  if (fifo_out == NULL) {
+    cerr << "Failed to open output queue." << endl;
+    return 1;
+  }
+
+  int random_seed;
+  int player, computer;
+  bool player_first = false;
+
+  // read input
+  fscanf(fin, "%d %d", &player, &random_seed);
+
+  // set random seed
+  srand(random_seed);
+
+  // set-up players
+  if (player == 1) {
+    computer = 2;
+    player_first = true;
+  } else {
+    computer = 1;
+    player_first = false;
+  }
+
   fprintf(fifo_in, "%d\n", player);
   fflush(fifo_in);
 
+  TicTacToe game;
+  Move move;
+  int turn = 0;
 
-  while (true) {
-    fscanf(fifo_out, "%d", &res);
-    if (res < 0) {
-      fprintf(fifo_in, "%d\n", c);
-      fflush(fifo_in);
-    } else {
-      fprintf(fout, "%d\n", res);
+  // game has not ended
+  while (!game.has_ended()) {
+    // increase turn count
+    turn++;
+
+    if (turn % 2 == (player_first ? 1 : 0)) {
+      // player's turn, read its move
+      move = player_move();
+
+      try {
+        game.move(player, move.row, move.col);
+      }
+      catch (const out_of_range& e) {
+        ex(e.what(), 0.0);
+      }
+      catch (const invalid_argument& e) {
+        ex(e.what(), 0.0);
+      }
+
+      fprintf(fout, "%d %d %d\n", player, move.row, move.col);
       fflush(fout);
-      break;
+    } else {
+      // computer's turn
+      move = computer_move(game);
+      game.move(computer, move.row, move.col);
+
+      fprintf(fout, "%d %d %d\n", computer, move.row, move.col);
+      fflush(fout);
+      fprintf(fifo_in, "%d %d\n", move.row, move.col);
+      fflush(fifo_in);
     }
   }
 
+  // game has ended
+  int winner = game.get_winner();
+  char msg[128];
 
-  if (a+b == res) {
-    fprintf(stderr, "A-ha, you're the best adding program I've ever met!\n");
-    printf("1.0\n");
+  if (winner == 0) {
+    // game is a draw
+    ex("game is a draw!", 0.5);
+  } 
+  if (winner == player) {
+    // player wins
+    sprintf(msg, "player (player %d) wins!", player);
+    ex(msg, 1.0);
   } else {
-    fprintf(stderr, "How dreadful, never met anyone as dumb as you...\n");
-    printf("0.0\n");
+    // computer wins
+    sprintf(msg, "player (player %d) lose!", player);
+    ex(msg, 0.0);
   }
 
   fclose(fin);
@@ -47,5 +135,5 @@ int main(int argc, char **argv) {
   fclose(fifo_in);
   fclose(fifo_out);
 
+  return 0;
 }
-
