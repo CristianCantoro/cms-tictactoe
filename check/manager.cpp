@@ -6,6 +6,8 @@
 #include <sstream>
 #include "tictactoe.h"
 
+#define NINPUT 2
+
 using namespace std;
 
 FILE *fin, *fout, *fifo_in, *fifo_out;
@@ -44,12 +46,12 @@ int main(int argc, char **argv) {
   fifo_out = fopen(argv[2], "r");
 
   if (fifo_in == NULL) {
-    cerr << "Failed to open input queue." << endl;
+    fprintf(stderr, "Failed to open input queue.\n");
     return 1;
   }
 
   if (fifo_out == NULL) {
-    cerr << "Failed to open output queue." << endl;
+    fprintf(stderr, "Failed to open output queue.\n");
     return 1;
   }
 
@@ -58,7 +60,7 @@ int main(int argc, char **argv) {
   bool player_first = false;
 
   // read input
-  fscanf(fin, "%d %d", &player, &random_seed);
+  assert(fscanf(fin, "%d %d", &player, &random_seed) == NINPUT);
 
   // set random seed
   srand(random_seed);
