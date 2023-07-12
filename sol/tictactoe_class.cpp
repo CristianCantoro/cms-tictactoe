@@ -56,12 +56,12 @@ bool TicTacToe::has_ended() {
   return false;
 }
 
-void TicTacToe::print_board() const {
+void TicTacToe::print_board(std::string prefix) const {
   char out = ' ';
 
-  std::cout << "-------------" << std::endl;
+  std::cout << prefix << "-------------" << std::endl;
   for (const auto& row : board) {
-    std::cout << "| ";
+    std::cout << prefix << "| ";
     for (const auto& cell : row) {
       if (cell == 0) {
         out = ' ';
@@ -72,7 +72,7 @@ void TicTacToe::print_board() const {
       }
       std::cout << out << " | ";
     }
-    std::cout << std::endl << "-------------" << std::endl;
+    std::cout << std::endl << prefix << "-------------" << std::endl;
   }
 
   return;

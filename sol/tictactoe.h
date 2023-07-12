@@ -22,7 +22,7 @@ private:
 public:
   TicTacToe();
 
-  void print_board() const;
+  void print_board(std::string prefix) const;
   int get_winner() const;
   std::vector<Move> get_available_moves() const;
 
