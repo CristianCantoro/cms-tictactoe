@@ -18,12 +18,11 @@ def run(f):
 
     data = f[0].strip().split()
 
-    player = data[0]
-    start_move = int(data[1])
-    seed = int(data[2])
+    player = int(data[0])
+    seed = int(data[1])
 
-    assert (player in ['X', 'O']), "Error: 'player' not 'X' or 'O'."
-    assert (start_move in [1, 2]), "Error: 'start_move' not 1 or 2."
+    assert (player in [1, 2]), "Error: 'player' not 1 or 2."
+    assert (seed > 0), "Error: Invalid seed."
 
     # valid input
     return 0
