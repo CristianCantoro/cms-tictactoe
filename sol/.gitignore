@@ -9,3 +9,5 @@ fifo_out
 # ignore executablestictactoe
 tictactoe
 manager
+tictactoe_user_input
+tictactoe_random_placement
