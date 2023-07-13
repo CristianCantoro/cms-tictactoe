@@ -42,17 +42,14 @@ bool TicTacToe::has_ended() {
     // winner is not set, check for a winning condition or a draw
     if (TicTacToe::check_winner(1)) {
       winner = 1;
-      std::cout << "Player 1 (X) wins!" << std::endl;
       return true;
     }
     else if (check_winner(2)) {
       winner = 2;
-      std::cout << "Player 2 (O) wins!" << std::endl;
       return true;
     }
     else if (is_draw()) {
       winner = 0;
-      std::cout << "The game is a draw." << std::endl;
       return true;
     }
   } else {
